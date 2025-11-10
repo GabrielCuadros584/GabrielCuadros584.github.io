@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EpilepsiApp</title>
+    <meta name="description" content="Aplicación móvil para ayudar a personas con epilepsia">
+    <meta name="theme-color" content="#4a6fa5">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚕️</text></svg>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="EpilepsiApp">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%234a6fa5' rx='20'/><text x='50' y='70' font-family='Arial' font-size='60' text-anchor='middle' fill='white'>⚕️</text></svg>">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #166088;
+            --accent: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #28a745;
+            --warning: #ffc107;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark);
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .app-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .emergency-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px;
+            width: calc(100% - 30px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .emergency-btn:hover {
+            background-color: #c1121f;
+            transform: scale(1.02);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 0 15px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-action {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-action:hover {
+            background-color: var(--light-gray);
+            transform: translateY(-2px);
+        }
+        
+        .quick-action i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .section-title {
+            padding: 10px 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--secondary);
+            border-bottom: 1px solid var(--light-gray);
+            margin-top: 10px;
+        }
+        
+        .medication-list, .crisis-list {
+            padding: 0 15px;
+        }
+        
+        .medication-item, .crisis-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .medication-info h3, .crisis-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .medication-info p, .crisis-info p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .medication-status {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .status-btn {
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        
+        .taken {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .missed {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+        }
+        
+        .nav-item i {
+            font-size: 1.2rem;
+        }
+        
+        /* Screen styles */
+        .screen {
+            display: none;
+            padding-bottom: 60px;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        /* History Screen */
+        .history-filters {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            background-color: white;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .history-list {
+            padding: 0 15px;
+        }
+        
+        .history-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .history-item.crisis {
+            border-left-color: var(--accent);
+        }
+        
+        .history-item.medication {
+            border-left-color: var(--success);
+        }
+        
+        .history-item.emergency {
+            border-left-color: var(--warning);
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .history-date {
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .history-type {
+            font-size: 0.8rem;
+            background-color: var(--light-gray);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        /* Reports Screen */
+        .reports-options {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .report-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .report-card i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        
+        .stats-container {
+            padding: 15px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .stat-title {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--success);
+        }
+        
+        /* Profile Screen */
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .profile-info {
+            padding: 15px;
+        }
+        
+        .info-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .info-title {
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: var(--gray);
+        }
+        
+        .info-value {
+            font-weight: 500;
+        }
+        
+        .edit-btn {
+            color: var(--primary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .emergency-modal {
+            background-color: #ffe6e6;
+            border: 2px solid var(--accent);
+        }
+        
+        .emergency-modal .modal-title {
+            color: var(--accent);
+        }
+        
+        .emergency-contacts {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            border: 1px solid var(--light-gray);
+        }
+        
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .contact-info h4 {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+        
+        .contact-info p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+        
+        .online {
+            color: var(--success);
+        }
+        
+        .offline {
+            color: var(--gray);
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .online .dot {
+            background-color: var(--success);
+        }
+        
+        .offline .dot {
+            background-color: var(--gray);
+        }
+        
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .export-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .export-option:hover {
+            background-color: var(--light);
+        }
+        
+        .export-option i {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        /* PWA Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 350px;
+            width: 90%;
+            display: none;
+            border: 2px solid var(--primary);
+        }
+
+        .install-prompt.show {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .install-prompt p {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .install-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .install-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .install-secondary {
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+        
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--warning);
+            color: var(--dark);
+            text-align: center;
+            padding: 5px;
+            font-size: 0.8rem;
+            z-index: 1001;
+            display: none;
+        }
+        
+        .offline-indicator.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        <i class="fas fa-wifi"></i> Estás trabajando sin conexión
+    </div>
+    
+    <div class="app-container">
+        <header>
+            <div class="logo">EpilepsiApp</div>
+            <div class="user-avatar" id="profileBtn">JP</div>
+        </header>
+        
+        <!-- Home Screen -->
+        <div class="screen active" id="homeScreen">
+            <button class="emergency-btn" id="emergencyBtn">
+                <i class="fas fa-bell"></i> EMERGENCIA
+            </button>
+            
+            <div class="quick-actions">
+                <div class="quick-action" id="reportCrisisBtn">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Reportar Crisis</span>
+                </div>
+                <div class="quick-action" id="addMedicationBtn">
+                    <i class="fas fa-pills"></i>
+                    <span>Agregar Medicamento</span>
+                </div>
+            </div>
+            
+            <div class="section-title">Próximos Medicamentos</div>
+            <div class="medication-list">
+                <div class="medication-item">
+                    <div class="medication-info">
+                        <h3>Levetiracetam</h3>
+                        <p>500mg - 10:30 AM</p>
+                    </div>
+                    <div class="medication-status">
+                        <button class="status-btn taken">Tomada</button>
+                        <button class="status-btn missed">Omitida</button>
+                    </div>
+                </div>
+                <div class="medication-item">
+                    <div class="medication-info">
+                        <h3>Valproato Sódico</h3>
+                        <p>300mg - 02:00 PM</p>
+                    </div>
+                    <div class="medication-status">
+                        <button class="status-btn taken">Tomada</button>
+                        <button class="status-btn missed">Omitida</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-title">Últimas Crisis Registradas</div>
+            <div class="crisis-list">
+                <div class="crisis-item">
+                    <div class="crisis-info">
+                        <h3>Crisis Tónico-Clónica</h3>
+                        <p>15 Oct 2023 - 2 min 30 seg</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="crisis-item">
+                    <div class="crisis-info">
+                        <h3>Crisis de Ausencia</h3>
+                        <p>12 Oct 2023 - 45 seg</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- History Screen -->
+        <div class="screen" id="historyScreen">
+            <div class="section-title">Historial</div>
+            <div class="history-filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="crisis">Crisis</button>
+                <button class="filter-btn" data-filter="medication">Medicación</button>
+                <button class="filter-btn" data-filter="emergency">Emergencias</button>
+            </div>
+            <div class="history-list">
+                <div class="history-item crisis">
+                    <div class="history-header">
+                        <span class="history-date">15 Oct 2023 - 10:15 AM</span>
+                        <span class="history-type">Crisis</span>
+                    </div>
+                    <p><strong>Tipo:</strong> Tónico-Clónica</p>
+                    <p><strong>Duración:</strong> 2 minutos 30 segundos</p>
+                    <p><strong>Síntomas:</strong> Convulsiones, pérdida de conciencia</p>
+                </div>
+                <div class="history-item medication">
+                    <div class="history-header">
+                        <span class="history-date">15 Oct 2023 - 10:30 AM</span>
+                        <span class="history-type">Medicación</span>
+                    </div>
+                    <p><strong>Medicamento:</strong> Levetiracetam</p>
+                    <p><strong>Dosis:</strong> 500mg</p>
+                    <p><strong>Estado:</strong> Tomada</p>
+                </div>
+                <div class="history-item crisis">
+                    <div class="history-header">
+                        <span class="history-date">12 Oct 2023 - 03:20 PM</span>
+                        <span class="history-type">Crisis</span>
+                    </div>
+                    <p><strong>Tipo:</strong> Ausencia</p>
+                    <p><strong>Duración:</strong> 45 segundos</p>
+                    <p><strong>Síntomas:</strong> Mirada perdida, desconexión</p>
+                </div>
+                <div class="history-item emergency">
+                    <div class="history-header">
+                        <span class="history-date">10 Oct 2023 - 09:05 AM</span>
+                        <span class="history-type">Emergencia</span>
+                    </div>
+                    <p><strong>Alerta enviada a:</strong> María Díaz, Carlos Díaz</p>
+                    <p><strong>Ubicación:</strong> Compartida por 15 minutos</p>
+                    <p><strong>Estado:</strong> Resuelta</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reports Screen -->
+        <div class="screen" id="reportsScreen">
+            <div class="section-title">Reportes</div>
+            <div class="reports-options">
+                <div class="report-card" id="generateReportBtn">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Generar Reporte</span>
+                </div>
+                <div class="report-card" id="exportDataBtn">
+                    <i class="fas fa-file-export"></i>
+                    <span>Exportar Datos</span>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Cumplimiento de Medicación</div>
+                        <div class="stat-value">92%</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%;"></div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Crisis este Mes</div>
+                        <div class="stat-value">3</div>
+                    </div>
+                    <p>Promedio: 2.5 crisis/mes</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Tipo de Crisis Más Frecuente</div>
+                    </div>
+                    <p><strong>Tónico-Clónica:</strong> 60%</p>
+                    <p><strong>Ausencia:</strong> 40%</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Alertas de Emergencia</div>
+                        <div class="stat-value">1</div>
+                    </div>
+                    <p>En el último mes</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Screen -->
+        <div class="screen" id="profileScreen">
+            <div class="profile-header">
+                <div class="profile-avatar">JP</div>
+                <div class="profile-name">Juan Pérez</div>
+                <div>Paciente</div>
+            </div>
+            
+            <div class="profile-info">
+                <div class="info-section">
+                    <div class="info-title">
+                        Información Personal
+                        <button class="edit-btn" id="editPersonalInfo">Editar</button>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Nombre completo</span>
+                        <span class="info-value">Juan Pérez</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Edad</span>
+                        <span class="info-value">28 años</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Peso</span>
+                        <span class="info-value">72 kg</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Teléfono</span>
+                        <span class="info-value">+34 612 345 678</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <div class="info-title">
+                        Información Médica
+                        <button class="edit-btn" id="editMedicalInfo">Editar</button>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Médico tratante</span>
+                        <span class="info-value">Dra. Elena Rodríguez</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Teléfono médico</span>
+                        <span class="info-value">+34 934 567 890</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tipo de epilepsia</span>
+                        <span class="info-value">Generalizada</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <div class="info-title">
+                        Contactos de Emergencia
+                        <button class="edit-btn" id="editEmergencyContacts">Editar</button>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">María Díaz</span>
+                        <span class="info-value">Madre - +34 600 123 456</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Carlos Díaz</span>
+                        <span class="info-value">Padre - +34 611 234 567</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ana López</span>
+                        <span class="info-value">Hermana - +34 622 345 678</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <div class="info-title">Configuración</div>
+                    <div class="info-item">
+                        <span class="info-label">Notificaciones</span>
+                        <span class="info-value">Activadas</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ubicación en emergencias</span>
+                        <span class="info-value">Activada</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Modo sin conexión</span>
+                        <span class="info-value">Activado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="nav-item active" data-screen="homeScreen">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </div>
+            <div class="nav-item" data-screen="historyScreen">
+                <i class="fas fa-history"></i>
+                <span>Historial</span>
+            </div>
+            <div class="nav-item" data-screen="reportsScreen">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reportes</span>
+            </div>
+            <div class="nav-item" data-screen="profileScreen">
+                <i class="fas fa-user"></i>
+                <span>Perfil</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        <p>¿Quieres instalar EpilepsiApp en tu dispositivo?</p>
+        <div class="install-buttons">
+            <button class="install-btn install-primary" id="installConfirm">Instalar</button>
+            <button class="install-btn install-secondary" id="installCancel">Ahora no</button>
+        </div>
+    </div>
+    
+    <!-- Emergency Modal -->
+    <div class="modal" id="emergencyModal">
+        <div class="modal-content emergency-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">ALERTA DE EMERGENCIA</h2>
+                <button class="close-btn" id="closeEmergency">&times;</button>
+            </div>
+            <p>Se enviará una alerta a tus contactos de emergencia con tu ubicación actual.</p>
+            
+            <div class="emergency-contacts">
+                <div class="contact-item">
+                    <div class="contact-avatar">MD</div>
+                    <div class="contact-info">
+                        <h4>María Díaz</h4>
+                        <p>Madre</p>
+                    </div>
+                    <div class="status-indicator online">
+                        <div class="dot"></div>
+                        <span>En línea</span>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-avatar">CD</div>
+                    <div class="contact-info">
+                        <h4>Carlos Díaz</h4>
+                        <p>Padre</p>
+                    </div>
+                    <div class="status-indicator offline">
+                        <div class="dot"></div>
+                        <span>Desconectado</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status-indicator">
+                <div class="dot" style="background-color: var(--accent);"></div>
+                <span>Compartiendo ubicación en tiempo real</span>
+            </div>
+            
+            <button class="btn btn-primary btn-block" id="confirmEmergency">CONFIRMAR ENVÍO DE ALERTA</button>
+            <button class="btn btn-block" id="cancelEmergency" style="margin-top: 10px; background-color: var(--light-gray);">Cancelar</button>
+        </div>
+    </div>
+    
+    <!-- Report Crisis Modal -->
+    <div class="modal" id="crisisModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Reportar Crisis</h2>
+                <button class="close-btn" id="closeCrisis">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="crisisType">Tipo de Crisis</label>
+                <select class="form-control" id="crisisType">
+                    <option value="">Seleccionar tipo</option>
+                    <option value="tonic-clonic">Tónico-Clónica</option>
+                    <option value="absence">Ausencia</option>
+                    <option value="focal">Focal</option>
+                    <option value="myoclonic">Mioclónica</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="crisisDuration">Duración (minutos)</label>
+                <input type="number" class="form-control" id="crisisDuration" placeholder="Ej: 2">
+            </div>
+            
+            <div class="form-group">
+                <label for="crisisSymptoms">Síntomas</label>
+                <textarea class="form-control" id="crisisSymptoms" rows="3" placeholder="Describe los síntomas..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="crisisTriggers">Posibles Desencadenantes</label>
+                <input type="text" class="form-control" id="crisisTriggers" placeholder="Ej: Falta de sueño, estrés...">
+            </div>
+            
+            <div class="form-group">
+                <label>Adjuntar archivos (opcional)</label>
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button class="btn" style="background-color: var(--light-gray);">
+                        <i class="fas fa-camera"></i> Foto
+                    </button>
+                    <button class="btn" style="background-color: var(--light-gray);">
+                        <i class="fas fa-video"></i> Video
+                    </button>
+                    <button class="btn" style="background-color: var(--light-gray);">
+                        <i class="fas fa-microphone"></i> Audio
+                    </button>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary btn-block" id="saveCrisis">GUARDAR REGISTRO</button>
+        </div>
+    </div>
+    
+    <!-- Add Medication Modal -->
+    <div class="modal" id="medicationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Agregar Medicamento</h2>
+                <button class="close-btn" id="closeMedication">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="medName">Nombre del Medicamento</label>
+                <input type="text" class="form-control" id="medName" placeholder="Ej: Levetiracetam">
+            </div>
+            
+            <div class="form-group">
+                <label for="medDosage">Dosis</label>
+                <input type="text" class="form-control" id="medDosage" placeholder="Ej: 500mg">
+            </div>
+            
+            <div class="form-group">
+                <label for="medSchedule">Horario</label>
+                <input type="time" class="form-control" id="medSchedule">
+            </div>
+            
+            <div class="form-group">
+                <label for="medFrequency">Frecuencia</label>
+                <select class="form-control" id="medFrequency">
+                    <option value="daily">Diario</option>
+                    <option value="weekly">Semanal</option>
+                    <option value="monthly">Mensual</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="medDuration">Duración del Tratamiento</label>
+                <input type="text" class="form-control" id="medDuration" placeholder="Ej: 30 días">
+            </div>
+            
+            <button class="btn btn-primary btn-block" id="saveMedication">AGREGAR MEDICAMENTO</button>
+        </div>
+    </div>
+    
+    <!-- Export Data Modal -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Exportar Datos</h2>
+                <button class="close-btn" id="closeExport">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="exportRange">Rango de Fechas</label>
+                <select class="form-control" id="exportRange">
+                    <option value="last-week">Última semana</option>
+                    <option value="last-month">Último mes</option>
+                    <option value="last-3months">Últimos 3 meses</option>
+                    <option value="last-year">Último año</option>
+                    <option value="all">Todos los datos</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="exportType">Tipo de Datos</label>
+                <select class="form-control" id="exportType">
+                    <option value="all">Todos los datos</option>
+                    <option value="crisis">Solo crisis</option>
+                    <option value="medication">Solo medicación</option>
+                    <option value="emergency">Solo emergencias</option>
+                </select>
+            </div>
+            
+            <div class="export-options">
+                <div class="export-option" data-format="pdf">
+                    <i class="fas fa-file-pdf"></i>
+                    <div>
+                        <div><strong>Exportar a PDF</strong></div>
+                        <div>Formato listo para imprimir</div>
+                    </div>
+                </div>
+                <div class="export-option" data-format="csv">
+                    <i class="fas fa-file-csv"></i>
+                    <div>
+                        <div><strong>Exportar a CSV</strong></div>
+                        <div>Para análisis en hojas de cálculo</div>
+                    </div>
+                </div>
+                <div class="export-option" data-format="json">
+                    <i class="fas fa-file-code"></i>
+                    <div>
+                        <div><strong>Exportar a JSON</strong></div>
+                        <div>Para uso en otras aplicaciones</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== PWA FUNCTIONALITY =====
+        
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registrado correctamente: ', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('Error al registrar ServiceWorker: ', error);
+                    });
+            });
+        }
+
+        // Detectar si la app está en modo standalone (instalada)
+        function isRunningStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+
+        // Manejar el prompt de instalación
+        let deferredPrompt;
+        const installPrompt = document.getElementById('installPrompt');
+        const installConfirm = document.getElementById('installConfirm');
+        const installCancel = document.getElementById('installCancel');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            setTimeout(() => {
+                if (!isRunningStandalone() && !localStorage.getItem('installDismissed')) {
+                    installPrompt.classList.add('show');
+                }
+            }, 3000);
+        });
+
+        installConfirm.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('Usuario aceptó instalar la PWA');
+                    installPrompt.classList.remove('show');
+                }
+                
+                deferredPrompt = null;
+            }
+        });
+
+        installCancel.addEventListener('click', () => {
+            installPrompt.classList.remove('show');
+            localStorage.setItem('installDismissed', 'true');
+        });
+
+        // Detectar cambios en la conexión
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        
+        window.addEventListener('online', () => {
+            offlineIndicator.classList.remove('show');
+            console.log('Conexión restaurada');
+        });
+
+        window.addEventListener('offline', () => {
+            offlineIndicator.classList.add('show');
+            console.log('Sin conexión - Modo offline activado');
+        });
+
+        if (!navigator.onLine) {
+            offlineIndicator.classList.add('show');
+        }
+
+        // ===== APP FUNCTIONALITY =====
+        
+        // Navigation
+        const navItems = document.querySelectorAll('.nav-item');
+        const screens = document.querySelectorAll('.screen');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const targetScreen = this.getAttribute('data-screen');
+                
+                navItems.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                
+                screens.forEach(screen => screen.classList.remove('active'));
+                document.getElementById(targetScreen).classList.add('active');
+            });
+        });
+        
+        // Profile button in header
+        document.getElementById('profileBtn').addEventListener('click', function() {
+            navItems.forEach(nav => nav.classList.remove('active'));
+            document.querySelector('.nav-item[data-screen="profileScreen"]').classList.add('active');
+            
+            screens.forEach(screen => screen.classList.remove('active'));
+            document.getElementById('profileScreen').classList.add('active');
+        });
+        
+        // History filters
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                const historyItems = document.querySelectorAll('.history-item');
+                
+                historyItems.forEach(item => {
+                    if (filter === 'all' || item.classList.contains(filter)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Report generation
+        document.getElementById('generateReportBtn').addEventListener('click', function() {
+            alert('Generando reporte personalizado...\nEl reporte estará listo en unos segundos.');
+        });
+        
+        // Export data
+        document.getElementById('exportDataBtn').addEventListener('click', function() {
+            document.getElementById('exportModal').style.display = 'flex';
+        });
+        
+        // Edit profile buttons
+        document.getElementById('editPersonalInfo').addEventListener('click', function() {
+            alert('Abriendo editor de información personal...');
+        });
+        
+        document.getElementById('editMedicalInfo').addEventListener('click', function() {
+            alert('Abriendo editor de información médica...');
+        });
+        
+        document.getElementById('editEmergencyContacts').addEventListener('click', function() {
+            alert('Abriendo editor de contactos de emergencia...');
+        });
+        
+        // Export options
+        document.querySelectorAll('.export-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const format = this.getAttribute('data-format');
+                alert(`Exportando datos en formato ${format.toUpperCase()}...\nLa descarga comenzará automáticamente.`);
+                document.getElementById('exportModal').style.display = 'none';
+            });
+        });
+        
+        // Modal functionality
+        const emergencyBtn = document.getElementById('emergencyBtn');
+        const emergencyModal = document.getElementById('emergencyModal');
+        const closeEmergency = document.getElementById('closeEmergency');
+        const cancelEmergency = document.getElementById('cancelEmergency');
+        const confirmEmergency = document.getElementById('confirmEmergency');
+        
+        const reportCrisisBtn = document.getElementById('reportCrisisBtn');
+        const crisisModal = document.getElementById('crisisModal');
+        const closeCrisis = document.getElementById('closeCrisis');
+        const saveCrisis = document.getElementById('saveCrisis');
+        
+        const addMedicationBtn = document.getElementById('addMedicationBtn');
+        const medicationModal = document.getElementById('medicationModal');
+        const closeMedication = document.getElementById('closeMedication');
+        const saveMedication = document.getElementById('saveMedication');
+        
+        const exportModal = document.getElementById('exportModal');
+        const closeExport = document.getElementById('closeExport');
+        
+        // Open modals
+        emergencyBtn.addEventListener('click', () => {
+            emergencyModal.style.display = 'flex';
+        });
+        
+        reportCrisisBtn.addEventListener('click', () => {
+            crisisModal.style.display = 'flex';
+        });
+        
+        addMedicationBtn.addEventListener('click', () => {
+            medicationModal.style.display = 'flex';
+        });
+        
+        // Close modals
+        closeEmergency.addEventListener('click', () => {
+            emergencyModal.style.display = 'none';
+        });
+        
+        cancelEmergency.addEventListener('click', () => {
+            emergencyModal.style.display = 'none';
+        });
+        
+        closeCrisis.addEventListener('click', () => {
+            crisisModal.style.display = 'none';
+        });
+        
+        closeMedication.addEventListener('click', () => {
+            medicationModal.style.display = 'none';
+        });
+        
+        closeExport.addEventListener('click', () => {
+            exportModal.style.display = 'none';
+        });
+        
+        // Save actions
+        saveCrisis.addEventListener('click', () => {
+            const type = document.getElementById('crisisType').value;
+            const duration = document.getElementById('crisisDuration').value;
+            
+            if (!type || !duration) {
+                alert('Por favor, completa al menos el tipo y duración de la crisis.');
+                return;
+            }
+            
+            alert('Crisis registrada correctamente.');
+            crisisModal.style.display = 'none';
+            
+            // Reset form
+            document.getElementById('crisisType').value = '';
+            document.getElementById('crisisDuration').value = '';
+            document.getElementById('crisisSymptoms').value = '';
+            document.getElementById('crisisTriggers').value = '';
+        });
+        
+        saveMedication.addEventListener('click', () => {
+            const name = document.getElementById('medName').value;
+            const dosage = document.getElementById('medDosage').value;
+            
+            if (!name || !dosage) {
+                alert('Por favor, completa al menos el nombre y dosis del medicamento.');
+                return;
+            }
+            
+            alert('Medicamento agregado correctamente.');
+            medicationModal.style.display = 'none';
+            
+            // Reset form
+            document.getElementById('medName').value = '';
+            document.getElementById('medDosage').value = '';
+            document.getElementById('medSchedule').value = '';
+            document.getElementById('medFrequency').value = 'daily';
+            document.getElementById('medDuration').value = '';
+        });
+        
+        // Confirm emergency alert
+        confirmEmergency.addEventListener('click', () => {
+            alert('¡Alerta de emergencia enviada! Se notificó a tus contactos con tu ubicación actual.');
+            emergencyModal.style.display = 'none';
+        });
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === emergencyModal) {
+                emergencyModal.style.display = 'none';
+            }
+            if (event.target === crisisModal) {
+                crisisModal.style.display = 'none';
+            }
+            if (event.target === medicationModal) {
+                medicationModal.style.display = 'none';
+            }
+            if (event.target === exportModal) {
+                exportModal.style.display = 'none';
+            }
+        });
+        
+        // Medication status buttons
+        document.querySelectorAll('.status-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const parent = this.parentElement;
+                const medicationName = parent.previousElementSibling.querySelector('h3').textContent;
+                
+                parent.querySelectorAll('.status-btn').forEach(btn => {
+                    btn.style.opacity = '0.5';
+                });
+                this.style.opacity = '1';
+                
+                if (this.classList.contains('taken')) {
+                    alert(`Medicación "${medicationName}" marcada como TOMADA`);
+                } else if (this.classList.contains('missed')) {
+                    alert(`Medicación "${medicationName}" marcada como OMITIDA`);
+                }
+            });
+        });
+        
+        // Crisis items click
+        document.querySelectorAll('.crisis-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const crisisType = this.querySelector('h3').textContent;
+                const crisisDate = this.querySelector('p').textContent;
+                alert(`Detalles de crisis:\n${crisisType}\n${crisisDate}\n\nPulsa OK para ver más detalles.`);
+            });
+        });
+    </script>
+</body>
+</html>
